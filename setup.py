@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-with open('requirements_tasks.txt') as fp:
+with open('requirements.txt') as fp:
     install_requires = fp.read()
 
 setup(
@@ -13,7 +13,8 @@ setup(
     python_requires='>=3.6',
     entry_points={
         'console_scripts': [
-            'ingest=hbp_image_tasks.ingest.py:main'
+            'ingest=hbp_image_tasks.ingest:main',
+            'fetch_input=hbp_image_tasks.fetch_input:main'
         ]
     },
     version='0.0.1'
