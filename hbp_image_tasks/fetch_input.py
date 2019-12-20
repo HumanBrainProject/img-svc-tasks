@@ -42,17 +42,19 @@ async def download_file(session, object_url, destination):
 async def download(source, stacks, regex, destination):
     if regex:
         pattern = re.compile(regex)
-    if stacks:
-        if source[-1] != '/':
-            source = f"{source}/"
-        async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
+        if stacks:
+            if source[-1] != '/':
+                source = f"{source}/"
             async with session.get(source) as resp:
                 objects = (await resp.text()).split()
-                results = list(filter(lambda obj: re.match(pattern, obj) is not None, objects))
-                logger.info("Downloading tiles:[\n {0}]".format('\n '.join(results)))
+                downloads = list(filter(lambda obj: re.match(pattern, obj) is not None, objects))
+
                 # url = urljoin(source, results[0])
-                await asyncio.gather(*[download_file(session, urljoin(source, object), destination) for object in results])
-                # await download_file(session, url, destination)
+        else:
+            downloads = [source]
+        logger.info("Downloading tiles:[\n {0}]".format('\n '.join(downloads)))
+        await asyncio.gather(*[download_file(session, urljoin(source, object), destination) for object in downloads])
 
 def main():
     args = parser.parse_args()
@@ -60,7 +62,7 @@ def main():
     if not isdir(args.destination):
         makedirs(args.destination, 0o700)
     loop = asyncio.get_event_loop()
-    loop.set_debug(True)
+    # loop.set_debug(True)
     loop.run_until_complete(download(args.source, args.stacks, args.filter, args.destination))
     loop.close()
     # client = boto3.client('s3', 'CH', endpoint_url='https://object.cscs.ch/', config=Config(signature_version='s3', s3={'addressing_style': 'path'}))
@@ -69,6 +71,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# Pitx3-tTA-horizontal-case6513/6513_PitX3_tiffs/6513_Pitx3_tTA_lacZ_Xgal_s016_0.22.tif
