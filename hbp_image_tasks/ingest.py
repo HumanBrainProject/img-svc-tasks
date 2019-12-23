@@ -1,6 +1,7 @@
 import sys
 import json
-from os import mkdir
+import argparse
+from os import getcwd, makedirs
 from os.path import isdir, join
 from pathlib import Path
 
@@ -10,13 +11,20 @@ import neuroglancer_scripts.dyadic_pyramid
 from neuroglancer_scripts.scripts.generate_scales_info import generate_scales_info
 from neuroglancer_scripts.scripts.slices_to_precomputed import convert_slices_in_directory
 
+parser = argparse.ArgumentParser(description='Launch ingestions')
+parser.add_argument('source', help='The filesystem path to the source data')
+parser.add_argument('definition', help='The filesystem path to the json '
+                    'definition to drive the ingestion')
+parser.add_argument('--destination', default='./results', help="Destination directory")
+
 def __persist_info(path, info):
     with open(join(path, 'info_fullres.json'), 'w') as jfile:
         json.dump(info, jfile)
 
-def ingest(path, parameters):
-    mkdir('results', 0o700)
-    ingest_path(path, 'results', parameters)
+def ingest(path, parameters, destination):
+    if not isdir(destination):
+        makedirs(destination, 0o700)
+    ingest_path(path, destination, parameters)
 
 def ingest_path(path, datadir, parameters):
 
@@ -66,17 +74,15 @@ def __override_info(jsonfile, key, value):
         json.dump(info, outfile)
 
 def main():
-    if len(sys.argv) < 3:
-        sys.exit("Input path and Definition file must be specified.")
-    input_path = sys.argv[1]
-    definition_file = sys.argv[2]
+    arguments = parser.parse_args()
+    import ipdb; ipdb.set_trace()
     try:
-        with open(definition_file) as df:
+        with open(arguments.definition) as df:
             definition = json.load(df)
     except Exception:
         sys.exit("Couldn't load definition file")
     print(definition)
-    ingest(input_path, definition)
+    ingest(arguments.source, definition, arguments.destination)
 
 
 if __name__ == "__main__":
