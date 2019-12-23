@@ -75,7 +75,6 @@ def __override_info(jsonfile, key, value):
 
 def main():
     arguments = parser.parse_args()
-    import ipdb; ipdb.set_trace()
     try:
         with open(arguments.definition) as df:
             definition = json.load(df)
