@@ -2,3 +2,4 @@ venv
 *.pyc
 test/source
 test/results
+*.egg-info
