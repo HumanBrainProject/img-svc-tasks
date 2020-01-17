@@ -21,3 +21,15 @@
     --destination ./source \
     https://github.com/HumanBrainProject/neuroglancer-scripts/raw/master/examples/JuBrain/colin27T1_seg.nii.gz
   ```
+
+
+## `send_results`
+
+Uploads the results to a SWIFT container using the S3 API.
+
+Expects a JSON file with EC2 credentials (by default at `./.ec2_creds`), example:
+
+```
+{"aws_access_key_id": "foo",
+"aws_secret_access_key": "bar"}
+```
