@@ -6,8 +6,12 @@ import re
 import json
 from time import perf_counter
 from datetime import timedelta
-import boto3
-from botocore.config import Config
+from swiftclient.multithreading import OutputManager
+from swiftclient.service import SwiftError, SwiftService, SwiftUploadObject
+
+
+# S3 multithread
+# http://ls.pwd.io/2013/06/parallel-s3-uploads-using-boto-and-threads-in-python/
 
 CREDENTIALS_LOCATION = './.ec2_creds'
 
@@ -41,22 +45,24 @@ def upload_results(results_folder, destination_container):
     # generate filelist from results folder
     files = [(os.path.join(dp, f)) for dp, dn, fn in os.walk(results_folder) for f in fn]
     labels = convert_filenames_to_labels(results_folder, files)
-    with open(CREDENTIALS_LOCATION, 'r') as cf:
-        credentials = json.load(cf)
+    # with open(CREDENTIALS_LOCATION, 'r') as cf:
+    #     credentials = json.load(cf)
 
-    client =  boto3.client(
-        's3',
-        'CH',
-        endpoint_url='https://object.cscs.ch/',
-        config=Config(signature_version='s3', s3={'addressing_style': 'path'}),
-        **credentials)
-    logger.info(f'Uploading {len(files)} objects to {destination_container}')
-    start = perf_counter()
-    for index, file in enumerate(files):
-        with open(file, 'rb') as fo:
-            client.upload_fileobj(fo, destination_container, labels[index])
-    finish = perf_counter()
-    logger.info(f'Completed in {timedelta(seconds=finish-start)}')
+
+    # https://docs.openstack.org/python-swiftclient/latest/service-api.html#upload
+    
+    _opts = {'object_uu_threads': 20}
+    with SwiftService(options=_opts) as swift, OutputManager() as out_manager:
+        try:
+            logger.info(f'Uploading {len(files)} objects to {destination_container}')
+            start = perf_counter()
+            objects = [SwiftUploadObject(file, object_name=labels[index] for index, file in enumerate(files)]
+            swift.upload(destination_container, objects)
+            finish = perf_counter()
+            logger.info(f'Completed in {timedelta(seconds=finish-start)}')
+        except SwiftError as e:
+            logger.error(e.value)
+
 
 
 
