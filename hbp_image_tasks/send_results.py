@@ -22,6 +22,9 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 
+logging.getLogger("requests").setLevel(logging.CRITICAL)
+logging.getLogger("swiftclient").setLevel(logging.CRITICAL)
+
 logger = logging.getLogger("send_results")
 
 parser = argparse.ArgumentParser(description='Save results to Archival storage')
@@ -50,14 +53,20 @@ def upload_results(results_folder, destination_container):
 
 
     # https://docs.openstack.org/python-swiftclient/latest/service-api.html#upload
-    
+
+    # pollux env needs extra env vars:
+    # ST_AUTH_VERSION
+    # OS_AUTH_TOKEN (=OS_TOKEN)
+
     _opts = {'object_uu_threads': 20}
     with SwiftService(options=_opts) as swift, OutputManager() as out_manager:
         try:
             logger.info(f'Uploading {len(files)} objects to {destination_container}')
             start = perf_counter()
-            objects = [SwiftUploadObject(file, object_name=labels[index] for index, file in enumerate(files)]
-            swift.upload(destination_container, objects)
+            objects = [SwiftUploadObject(file, object_name=labels[index]) for index, file in enumerate(files)]
+            for result in swift.upload(destination_container, objects):
+                if not result['success']:
+                    logger.error(f"Faield to uplad object {result['object']}")
             finish = perf_counter()
             logger.info(f'Completed in {timedelta(seconds=finish-start)}')
         except SwiftError as e:
