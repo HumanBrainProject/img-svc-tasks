@@ -4,3 +4,4 @@ test/source
 test/results
 *.egg-info
 .ec2_creds
+.os_settings
