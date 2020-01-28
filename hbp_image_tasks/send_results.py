@@ -92,14 +92,14 @@ def upload_results(results_folder, destination_container, cleanup):
             start = perf_counter()
             objects = [SwiftUploadObject(file, object_name=labels[index]) for index, file in enumerate(files)]
             for result in swift.upload(destination_container, objects):
-                # import ipdb; ipdb.set_trace()
                 if not result['success']:
                     logger.error(f"Failed to upload object")
                     sys.exit("Failed to upload object")
             finish = perf_counter()
             logger.info(f'Completed in {timedelta(seconds=finish-start)}')
         except SwiftError as e:
-            logger.error(e.value)
+            logger.exception(e.value)
+            sys.exit("Failed to upload objects")
 
     if cleanup:
         logging.info("Deleting results folder")
