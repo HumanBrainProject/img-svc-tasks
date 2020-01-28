@@ -27,9 +27,15 @@
 
 Uploads the results to a SWIFT container using the S3 API.
 
-Expects a JSON file with EC2 credentials (by default at `./.ec2_creds`), example:
+Expects a JSON file with SWIFT settings, example:
 
 ```
-{"aws_access_key_id": "foo",
-"aws_secret_access_key": "bar"}
+{
+  "auth_version": "3",
+  "os_username": "username",
+  "os_password": "password",
+  "os_project_id": "08c08f9f119744cbbf77e216988da3eb",
+  "os_auth_url": "https://pollux.cscs.ch:13000/v3".
+  "os_storage_url": "https://object.cscs.ch/v1/AUTH_08c08f9f119744cbbf77e216988da3eb"
+}
 ```

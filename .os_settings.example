@@ -1,0 +1,8 @@
+{
+  "auth_version": "3",
+  "os_username": "username",
+  "os_password": "password",
+  "os_project_id": "08c08f9f119744cbbf77e216988da3eb",
+  "os_auth_url": "https://pollux.cscs.ch:13000/v3".
+  "os_storage_url": "https://object.cscs.ch/v1/AUTH_08c08f9f119744cbbf77e216988da3eb"
+}
