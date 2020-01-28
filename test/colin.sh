@@ -1,6 +1,7 @@
 #!/bin/bash
-
+set -e
 # Testing task chain for single file
+
 
 NAME='colin'
 SOURCE="./source/$NAME"
@@ -26,3 +27,8 @@ ingest \
   $SOURCE/colin27T1_seg.nii.gz \
   ./definitions/colin.json \
   --destination $RESULTS
+
+SWIFT_SETTINGS=../.os_settings send_results \
+  $RESULTS \
+  test_colin \
+  --cleanup

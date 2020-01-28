@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 NAME='bigbrain'
 SOURCE="./source/$NAME"
 RESULTS="./results/$NAME"
@@ -25,3 +27,8 @@ ingest \
   $SOURCE \
   ./definitions/bigbrain_ingest.json \
   --destination $RESULTS
+
+SWIFT_SETTINGS=../.os_settings send_results \
+  $RESULTS \
+  test_bigbrain \
+  --cleanup
