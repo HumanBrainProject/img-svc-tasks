@@ -81,7 +81,7 @@ def upload_results(results_folder, destination_container, cleanup):
 
     options = {'object_uu_threads': 20,
                'os_auth_token': get_keystone_token(settings)}
-    # Remove password from the OpesnStack settings, otherwise the SwiftService
+    # Remove password from the OpenStack settings, otherwise the SwiftService
     # connection will be built ignoring the token and failing authentication
     del(settings['os_password'])
     options.update(**settings)
@@ -94,7 +94,8 @@ def upload_results(results_folder, destination_container, cleanup):
             for result in swift.upload(destination_container, objects):
                 # import ipdb; ipdb.set_trace()
                 if not result['success']:
-                    logger.error(f"Faield to uplad object {result['object']}")
+                    logger.error(f"Failed to upload object")
+                    sys.exit("Failed to upload object")
             finish = perf_counter()
             logger.info(f'Completed in {timedelta(seconds=finish-start)}')
         except SwiftError as e:
