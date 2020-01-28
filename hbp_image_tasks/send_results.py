@@ -88,6 +88,8 @@ def upload_results(results_folder, destination_container, cleanup):
 
     with SwiftService(options=options) as swift, OutputManager() as out_manager:
         try:
+            logger.info(F'Making public container {destination_container}')
+            swift.post(container=destination_container, options={'read_acl': '.r:*,.rlistings'})
             logger.info(f'Uploading {len(files)} objects to {destination_container}')
             start = perf_counter()
             objects = [SwiftUploadObject(file, object_name=labels[index]) for index, file in enumerate(files)]
