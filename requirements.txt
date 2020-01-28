@@ -1,8 +1,6 @@
 neuroglancer-scripts==0.3.0
 aiohttp
 aiofiles
-aioboto3
-boto3
 lxml
 python-swiftclient
 python-keystoneclient

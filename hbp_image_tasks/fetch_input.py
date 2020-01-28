@@ -65,9 +65,6 @@ def main():
     # loop.set_debug(True)
     loop.run_until_complete(download(args.source, args.stacks, args.filter, args.destination))
     loop.close()
-    # client = boto3.client('s3', 'CH', endpoint_url='https://object.cscs.ch/', config=Config(signature_version='s3', s3={'addressing_style': 'path'}))
-    # res = boto3.resource('s3', 'CH', endpoint_url='https://object.cscs.ch/', config=Config(signature_version='s3', s3={'addressing_style': 'path'}))
-    # client = boto3.client('s3', 'CH', endpoint_url='https://object.cscs.ch/', config=Config(signature_version=UNSIGNED, s3={'addressing_style': 'path'}))
 
 if __name__ == "__main__":
     main()
