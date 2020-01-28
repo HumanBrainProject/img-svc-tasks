@@ -17,7 +17,9 @@ from keystoneauth1.extras._saml2 import V3Saml2Password
 # S3 multithread
 # http://ls.pwd.io/2013/06/parallel-s3-uploads-using-boto-and-threads-in-python/
 
-SETTINGS_LOCATION = os.environ.get('TASK_SETTINGS', './.os_settings')
+SETTINGS_LOCATION = os.environ.get('SWIFT_SETTINGS')
+if not SETTINGS_LOCATION:
+    sys.exit("No settings provided")
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s:%(name)s: %(message)s",
@@ -79,6 +81,8 @@ def upload_results(results_folder, destination_container, cleanup):
 
     options = {'object_uu_threads': 20,
                'os_auth_token': get_keystone_token(settings)}
+    # Remove password from the OpesnStack settings, otherwise the SwiftService
+    # connection will be built ignoring the token and failing authentication
     del(settings['os_password'])
     options.update(**settings)
 
