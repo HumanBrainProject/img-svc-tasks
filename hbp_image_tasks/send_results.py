@@ -6,6 +6,7 @@ import re
 import json
 from time import perf_counter
 from datetime import timedelta
+from shutil import rmtree
 from swiftclient.multithreading import OutputManager
 from swiftclient.service import SwiftError, SwiftService, SwiftUploadObject
 from keystoneclient.v3 import client
@@ -33,6 +34,8 @@ logger = logging.getLogger("send_results")
 parser = argparse.ArgumentParser(description='Save results to Archival storage')
 parser.add_argument('results', help='The local path to the results directory')
 parser.add_argument('destination', help="The destination container")
+parser.add_argument('--cleanup',  action='store_true',
+    help="Wipe the local chunks after a successful upload")
 
 def get_keystone_token(settings):
     # GETTING UNSCOPED TOKEN
@@ -66,7 +69,7 @@ def convert_filenames_to_labels(results_folder, filepaths):
     label = r'\1_\2_\3'
     return [re.sub(pattern, label, filename) for filename in filenames]
 
-def upload_results(results_folder, destination_container):
+def upload_results(results_folder, destination_container, cleanup):
     # generate filelist from results folder
     files = [(os.path.join(dp, f)) for dp, dn, fn in os.walk(results_folder) for f in fn]
     labels = convert_filenames_to_labels(results_folder, files)
@@ -93,13 +96,16 @@ def upload_results(results_folder, destination_container):
         except SwiftError as e:
             logger.error(e.value)
 
-
+    if cleanup:
+        logging.info("Deleting results folder")
+        rmtree(results_folder)
+        logging.info("Done")
 
 
 
 def main():
     args = parser.parse_args()
-    upload_results(args.results, args.destination)
+    upload_results(args.results, args.destination, args.cleanup)
 
 if __name__ == "__main__":
     main()
