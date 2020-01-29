@@ -21,13 +21,6 @@ logging.basicConfig(
 
 logger = logging.getLogger("fetch_input")
 
-parser = argparse.ArgumentParser(description='Fetch input data for processing')
-parser.add_argument('source', help='The source url in http')
-parser.add_argument('--stacks', action='store_true', help='Whether ther are stack under the URL')
-parser.add_argument('--filter', help="Filename filter regex for container stacks")
-parser.add_argument('--destination', default=getcwd(), help="Destination directory")
-
-
 
 async def download_file(session, object_url, destination):
     # import pdb; pdb.set_trace()
@@ -56,15 +49,22 @@ async def download(source, stacks, regex, destination):
         logger.info("Downloading tiles:[\n {0}]".format('\n '.join(downloads)))
         await asyncio.gather(*[download_file(session, urljoin(source, object), destination) for object in downloads])
 
-def main():
-    args = parser.parse_args()
-    print(args)
-    if not isdir(args.destination):
-        makedirs(args.destination, 0o700)
+def fetch_input(source, stacks, filter, destination):
+    if not isdir(destination):
+        makedirs(destination, 0o700)
     loop = asyncio.get_event_loop()
-    # loop.set_debug(True)
-    loop.run_until_complete(download(args.source, args.stacks, args.filter, args.destination))
+    loop.run_until_complete(download(source, stacks, filter, destination))
     loop.close()
+
+def main():
+    parser = argparse.ArgumentParser(description='Fetch input data for processing')
+    parser.add_argument('source', help='The source url in http')
+    parser.add_argument('--stacks', action='store_true', help='Whether ther are stack under the URL')
+    parser.add_argument('--filter', help="Filename filter regex for container stacks")
+    parser.add_argument('--destination', default=getcwd(), help="Destination directory")
+    args = parser.parse_args()
+    fetch_input(args.source, args.stacks, args.filter, args.destination)
+
 
 if __name__ == "__main__":
     main()

@@ -17,9 +17,7 @@ from keystoneauth1.extras._saml2 import V3Saml2Password
 # S3 multithread
 # http://ls.pwd.io/2013/06/parallel-s3-uploads-using-boto-and-threads-in-python/
 
-SETTINGS_LOCATION = os.environ.get('SWIFT_SETTINGS')
-if not SETTINGS_LOCATION:
-    sys.exit("No settings provided")
+
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s:%(name)s: %(message)s",
@@ -28,16 +26,13 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 
+# The following loggers are a bit too chatty by default
 logging.getLogger("requests").setLevel(logging.CRITICAL)
 logging.getLogger("swiftclient").setLevel(logging.CRITICAL)
 
 logger = logging.getLogger("send_results")
 
-parser = argparse.ArgumentParser(description='Save results to Archival storage')
-parser.add_argument('results', help='The local path to the results directory')
-parser.add_argument('destination', help="The destination container")
-parser.add_argument('--cleanup',  action='store_true',
-    help="Wipe the local chunks after a successful upload")
+
 
 def get_keystone_token(settings):
     # GETTING UNSCOPED TOKEN
@@ -72,12 +67,15 @@ def convert_filenames_to_labels(results_folder, filepaths):
     return [re.sub(pattern, label, filename) for filename in filenames]
 
 def upload_results(results_folder, destination_container, cleanup):
-    # generate filelist from results folder
-    files = [(os.path.join(dp, f)) for dp, dn, fn in os.walk(results_folder) for f in fn]
-    labels = convert_filenames_to_labels(results_folder, files)
+    SETTINGS_LOCATION = os.environ.get('SWIFT_SETTINGS')
+    if not SETTINGS_LOCATION:
+        sys.exit("No OpenStack settings provided for the upload")
     with open(SETTINGS_LOCATION, 'r') as sf:
         settings = json.load(sf)
 
+    # generate filelist from results folder
+    files = [(os.path.join(dp, f)) for dp, dn, fn in os.walk(results_folder) for f in fn]
+    labels = convert_filenames_to_labels(results_folder, files)
 
     options = {'object_uu_threads': 20,
                'os_auth_token': get_keystone_token(settings)}
@@ -111,6 +109,11 @@ def upload_results(results_folder, destination_container, cleanup):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Save results to Archival storage')
+    parser.add_argument('results', help='The local path to the results directory')
+    parser.add_argument('destination', help="The destination container")
+    parser.add_argument('--cleanup',  action='store_true',
+        help="Wipe the local chunks after a successful upload")
     args = parser.parse_args()
     upload_results(args.results, args.destination, args.cleanup)
 
