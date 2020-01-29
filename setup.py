@@ -14,8 +14,9 @@ setup(
     entry_points={
         'console_scripts': [
             'ingest=hbp_image_tasks.ingest:main',
+            'ingest_ngs=hbp_image_tasks.ingest_ngs:main',
             'fetch_input=hbp_image_tasks.fetch_input:main',
-            'send_results=hbp_image_tasks.send_results:main'
+            'upload_results=hbp_image_tasks.upload_results:main'
         ]
     },
     version='0.0.1'
