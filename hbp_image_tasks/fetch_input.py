@@ -5,6 +5,8 @@ import aiofiles
 import re
 import sys
 import logging
+from time import perf_counter
+from datetime import timedelta
 from urllib.parse import urljoin
 from os import getcwd, makedirs
 from os.path import isdir, join
@@ -14,7 +16,7 @@ from os.path import isdir, join
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s:%(name)s: %(message)s",
-    level=logging.DEBUG,
+    level=logging.INFO,
     datefmt="%H:%M:%S",
     stream=sys.stdout,
 )
@@ -46,14 +48,17 @@ async def download(source, stacks, regex, destination):
                 # url = urljoin(source, results[0])
         else:
             downloads = [source]
-        logger.info("Downloading tiles:[\n {0}]".format('\n '.join(downloads)))
+        logger.info("Downloading {0} tiles:[\n {1}]".format(len(downloads), ' '.join(downloads)))
         await asyncio.gather(*[download_file(session, urljoin(source, object), destination) for object in downloads])
 
 def fetch_input(source, stacks, filter, destination):
     if not isdir(destination):
         makedirs(destination, 0o700)
     loop = asyncio.get_event_loop()
+    start = perf_counter()
     loop.run_until_complete(download(source, stacks, filter, destination))
+    finish = perf_counter()
+    logger.info(f'Download completed in {timedelta(seconds=finish-start)}')
     loop.close()
 
 def main():

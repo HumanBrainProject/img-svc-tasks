@@ -1,9 +1,11 @@
 import sys
 import json
 import argparse
+import logging
 from os import getcwd, makedirs
 from os.path import isdir, join
 from pathlib import Path
+from pprint import pformat
 
 
 import neuroglancer_scripts.volume_reader
@@ -11,6 +13,16 @@ import neuroglancer_scripts.dyadic_pyramid
 from neuroglancer_scripts.scripts.generate_scales_info import generate_scales_info
 from neuroglancer_scripts.scripts.slices_to_precomputed import convert_slices_in_directory
 
+
+
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s:%(name)s: %(message)s",
+    level=logging.INFO,
+    datefmt="%H:%M:%S",
+    stream=sys.stdout,
+)
+
+logger = logging.getLogger("ingest")
 
 def __persist_info(path, info):
     with open(join(path, 'info_fullres.json'), 'w') as jfile:
@@ -29,6 +41,7 @@ def ingest(path, destination, parameters_file=None, parameters=None):
             sys.exit("Couldn't load definition file")
     else:
         parameters = json.loads(parameters)
+    logger.info(f'Ingesting with parameters: {pformat(parameters)}')
     ingest_path(path, destination, parameters)
 
 def ingest_path(path, datadir, parameters):
