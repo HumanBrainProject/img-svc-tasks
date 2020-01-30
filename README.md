@@ -68,3 +68,28 @@ Expects a JSON file with SWIFT settings, example:
   "os_storage_url": "https://object.cscs.ch/v1/AUTH_08c08f9f119744cbbf77e216988da3eb"
 }
 ```
+
+# Deployment
+
+Manual operation for now.
+
+* Build a source distribution,
+  * `python setup.py sdist`
+* then copy it to the HPC cluster,
+  * ```
+    VERSION=$(grep version setup.py | cut -d= -f2 | cut -d\' -f2) \
+    PKG=hbp-image-tasks-$VERSION.tar.gz \
+    rsync -av \
+      dist/$PKG \
+      ich019sa@ela.cscs.ch:~
+    ```
+* finally install it to the existing virtualenv
+  * SSH to ela.cscs.ch
+  * SSH to daint.cscs.ch (no Python on ela)
+  * activate virtualenv and install package.
+    * `/store/hbp/ich019/img-svc-tasks/bin/pip install /users/ich019sa/hbp-image-tasks-0.0.1.tar.gz`
+
+
+Future improvement for automation: add ssh key for service account's
+ (ich019sa) `known_keys` on `ela.cscs.ch` to enable SSH connection
+  without password. The create a Gitlab CD pipe which on demand build the sdist, rsyncs to the server, and installs it to the virtual env.
