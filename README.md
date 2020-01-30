@@ -91,5 +91,5 @@ Manual operation for now.
 
 
 Future improvement for automation: add ssh key for service account's
- (ich019sa) `known_keys` on `ela.cscs.ch` to enable SSH connection
+ (ich019sa) `authorized_keys` on `ela.cscs.ch` to enable SSH connection
   without password. The create a Gitlab CD pipe which on demand build the sdist, rsyncs to the server, and installs it to the virtual env.
