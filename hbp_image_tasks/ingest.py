@@ -1,5 +1,6 @@
 import argparse
 from os import getcwd
+from os.path import join
 from .fetch_input import fetch_input
 from .ingest_ngs import ingest
 from .upload_results import upload_results
@@ -40,8 +41,14 @@ def main():
         stacks=args.stacks,
         filter=args.filter)
 
+    if not args.stacks:
+        #single file
+        ingest_input_path = join(args.download_dir, args.source.split('/')[-1])
+    else:
+        ingest_input_path = args.download_dir
+
     ingest(
-        path=args.download_dir,
+        path=ingest_input_path,
         destination=args.results_dir,
         parameters=args.parameters)
 
