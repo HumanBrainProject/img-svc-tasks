@@ -32,6 +32,8 @@ def main():
                                help="The destination container")
     upload_parser.add_argument('--cleanup',  action='store_true',
                                help="Wipe the local data after a successful upload")
+    upload_parser.add_argument('--noupload', action='store_true',
+                               help='Use this switch to skip uploading in the end')
 
     args = parser.parse_args()
     print(args)
@@ -52,10 +54,11 @@ def main():
         destination=args.results_dir,
         parameters=args.parameters)
 
-    upload_results(
-        results_folder=args.results_dir,
-        destination_container=args.container,
-        cleanup=args.cleanup)
+    if not args.noupload:
+        upload_results(
+            results_folder=args.results_dir,
+            destination_container=args.container,
+            cleanup=args.cleanup)
 
 if __name__ == '__main__':
     main()
