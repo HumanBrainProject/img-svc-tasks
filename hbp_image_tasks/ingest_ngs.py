@@ -6,10 +6,14 @@ from os import getcwd, makedirs
 from os.path import isdir, join
 from pathlib import Path
 from pprint import pformat
+from time import perf_counter
+from datetime import timedelta
+
 
 
 import neuroglancer_scripts.volume_reader
 import neuroglancer_scripts.dyadic_pyramid
+from neuroglancer_scripts.scripts.compute_scales import compute_scales
 from neuroglancer_scripts.scripts.generate_scales_info import generate_scales_info
 from neuroglancer_scripts.scripts.slices_to_precomputed import convert_slices_in_directory
 
@@ -29,6 +33,17 @@ def __persist_info(path, info):
         json.dump(info, jfile)
 
 def ingest(path, destination, parameters_file=None, parameters=None):
+    '''
+    Arguments
+        path (str):
+            The location of the input, can be a file or a directory for stacks
+        destination(str):
+            The path where the results will be written
+        parameters_file(str):
+            The path of the json file with the ingestion parameters
+        parameters(str):
+            The ingestion parameters as a string
+    '''
     if not isdir(destination):
         makedirs(destination, 0o700)
     if not (parameters_file or parameters):
@@ -41,14 +56,15 @@ def ingest(path, destination, parameters_file=None, parameters=None):
             sys.exit("Couldn't load definition file")
     else:
         parameters = json.loads(parameters)
-    logger.info(f'Ingesting with parameters: {pformat(parameters)}')
     ingest_path(path, destination, parameters)
 
 def ingest_path(path, datadir, parameters):
-
+    start = perf_counter()
+    logger.info(f'Ingesting with parameters: {pformat(parameters)}')
     if isdir(path) and not parameters:
         raise AttributeError("Info.json required with stack of images")
     if isdir(path) and parameters:
+        logger.info("Detected stacks, beginning chunking.")
         __persist_info(datadir, parameters)  # parameters has to be the info
         generate_scales_info(
             input_fullres_info_filename = join(datadir, "info_fullres.json"),
@@ -60,6 +76,7 @@ def ingest_path(path, datadir, parameters):
     else:
         # This is a single file, proceed to normal ingestion
         # Generate info
+        logger.info("Detected single volume file, beginning chunking.")
         neuroglancer_scripts.volume_reader.volume_file_to_info(
             volume_filename=path,
             dest_url=datadir,
@@ -82,6 +99,15 @@ def ingest_path(path, datadir, parameters):
         neuroglancer_scripts.volume_reader.volume_file_to_precomputed(
             path,
             datadir)
+    logger.info("Chunking complete, beginning generating scales.")
+    # Compute scales after chunks are there
+    compute_scales(
+        work_dir=datadir,
+        downscaling_method="average",
+        options={})
+    finish = perf_counter()
+    logger.info("Scaling complete.")
+    logger.info(f"Finished ingestion in {timedelta(seconds=finish-start)}")
 
 def __override_info(jsonfile, key, value):
     '''Needed for the JuBrain example that gets a faulty data type'''
