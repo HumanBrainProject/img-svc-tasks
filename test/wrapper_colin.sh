@@ -24,5 +24,6 @@ SWIFT_SETTINGS='../.os_settings' ingest \
   --download-dir $SOURCE \
   --results-dir $RESULTS \
   --parameters "$PARAMS" \
-  --container test_colin
-  # --cleanup
+  --container test_colin \
+  --noupload \
+  --cleanup

@@ -27,4 +27,5 @@ SWIFT_SETTINGS='../.os_settings' ingest \
   --filter 'data/raw/original/pm31\d{2}o.png' \
   --parameters "$PARAMS" \
   --container test_wrapper \
+  --noupload \
   --cleanup
