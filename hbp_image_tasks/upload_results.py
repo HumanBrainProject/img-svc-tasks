@@ -69,7 +69,7 @@ def convert_filenames_to_labels(results_folder, filepaths):
 def upload_results(results_folder, destination_container, cleanup):
     SETTINGS_LOCATION = os.environ.get('SWIFT_SETTINGS')
     if not SETTINGS_LOCATION:
-        sys.exit("No OpenStack settings provided for the upload")
+        raise RuntimeError("No OpenStack settings provided for the upload")
     with open(SETTINGS_LOCATION, 'r') as sf:
         settings = json.load(sf)
 
@@ -94,18 +94,18 @@ def upload_results(results_folder, destination_container, cleanup):
             for result in swift.upload(destination_container, objects):
                 if not result['success']:
                     logger.error(f"Failed to upload object")
-                    sys.exit("Failed to upload object")
+                    raise RuntimeError("Failed to upload object")
             finish = perf_counter()
             logger.info(f'Completed in {timedelta(seconds=finish-start)}')
         except SwiftError as e:
             logger.exception(e.value)
-            sys.exit("Failed to upload objects")
 
     if cleanup:
         logging.info("Deleting results folder")
         rmtree(results_folder)
         logging.info("Done")
 
+            raise RuntimeError("Failed to upload objects")
 
 
 def main():
