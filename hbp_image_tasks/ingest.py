@@ -72,6 +72,8 @@ def main():
                 results_folder=args.results_dir,
                 destination_container=args.container)
     except Exception as exc:
+        logging.exception(exc)
+        logging.error("Ingestion failed")
         return_code = 1
     finally:
         if args.cleanup:
