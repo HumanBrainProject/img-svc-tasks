@@ -2,7 +2,7 @@
 
 set -e
 
-NAME='bigbrain'
+NAME='kg-3'
 SOURCE="./source/$NAME"
 RESULTS="./results/$NAME"
 PARAMS='{"num_channels": 1, "type": "image", "data_type": "uint8", "scales": [{"encoding": "raw", "chunk_sizes": [], "key": "full", "resolution": [20000, 20000, 20000], "voxel_offset": [0, 0, 0], "size": [1376, 623, 815]}]}'
@@ -28,4 +28,5 @@ SWIFT_SETTINGS='../.os_settings' ingest \
   --filter 'hbp-00020/hippoDS/hippo-1/dorsal/hbp-00020_hippoDS_hippo-1_dorsal__s0[0-9]{3}.tif' \
   --parameters "$PARAMS" \
   --container test_kg-1 \
-  --noupload
+  --noupload \
+  --cleanup
