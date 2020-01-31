@@ -1,6 +1,6 @@
 {
   "type": "image",
-  "data_type": "uint8",
+  "data_type": "uint16",
   "num_channels": 1,
   "scales": [
     {
