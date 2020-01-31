@@ -6,7 +6,6 @@ import re
 import json
 from time import perf_counter
 from datetime import timedelta
-from shutil import rmtree
 from swiftclient.multithreading import OutputManager
 from swiftclient.service import SwiftError, SwiftService, SwiftUploadObject
 from keystoneclient.v3 import client
@@ -99,12 +98,6 @@ def upload_results(results_folder, destination_container, cleanup):
             logger.info(f'Completed in {timedelta(seconds=finish-start)}')
         except SwiftError as e:
             logger.exception(e.value)
-
-    if cleanup:
-        logging.info("Deleting results folder")
-        rmtree(results_folder)
-        logging.info("Done")
-
             raise RuntimeError("Failed to upload objects")
 
 
@@ -112,10 +105,8 @@ def main():
     parser = argparse.ArgumentParser(description='Save results to Archival storage')
     parser.add_argument('results', help='The local path to the results directory')
     parser.add_argument('destination', help="The destination container")
-    parser.add_argument('--cleanup',  action='store_true',
-        help="Wipe the local chunks after a successful upload")
     args = parser.parse_args()
-    upload_results(args.results, args.destination, args.cleanup)
+    upload_results(args.results, args.destination)
 
 if __name__ == "__main__":
     main()
