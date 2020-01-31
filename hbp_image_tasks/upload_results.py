@@ -65,7 +65,7 @@ def convert_filenames_to_labels(results_folder, filepaths):
     label = r'\1_\2_\3'
     return [re.sub(pattern, label, filename) for filename in filenames]
 
-def upload_results(results_folder, destination_container, cleanup):
+def upload_results(results_folder, destination_container):
     SETTINGS_LOCATION = os.environ.get('SWIFT_SETTINGS')
     if not SETTINGS_LOCATION:
         raise RuntimeError("No OpenStack settings provided for the upload")
