@@ -83,13 +83,23 @@ def upload_results(results_folder, destination_container):
     del(settings['os_password'])
     options.update(**settings)
 
+    def generate_options(label):
+        if label in ['/info', '/info_fullres.json', '/transform.json']:
+            return {}
+        else:
+            return {'header': ['Content-Encoding:gzip']}
+
     with SwiftService(options=options) as swift, OutputManager() as out_manager:
         try:
             logger.info(F'Making public container {destination_container}')
-            swift.post(container=destination_container, options={'read_acl': '.r:*,.rlistings'})
+            swift.post(
+                container=destination_container,
+                options={
+                    'read_acl': '.r:*,.rlistings',
+                    'header': ['X-Container-Meta-Access-Control-Allow-Origin: *']})
             logger.info(f'Uploading {len(files)} objects to {destination_container}')
             start = perf_counter()
-            objects = [SwiftUploadObject(file, object_name=labels[index]) for index, file in enumerate(files)]
+            objects = [SwiftUploadObject(file, object_name=labels[index], options=generate_options(labels[index])) for index, file in enumerate(files)]
             for result in swift.upload(destination_container, objects):
                 if not result['success']:
                     logger.error(f"Failed to upload object")

@@ -35,7 +35,7 @@ async def download_file(session, object_url, destination):
             resp.raise_for_status()
 
 async def download(source, stacks, regex, destination):
-    connector = aiohttp.TCPConnector(limit=50)
+    connector = aiohttp.TCPConnector(limit=40)
     if regex:
         pattern = re.compile(regex)
     async with aiohttp.ClientSession(connector=connector) as session:
