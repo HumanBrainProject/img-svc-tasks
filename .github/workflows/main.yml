@@ -1,0 +1,26 @@
+name: Build and deploy package on release
+
+on: release
+  types: [published]
+
+jobs:
+  build:
+    name: Build sdist
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: build
+      run: python3 setup.py sdist
+    - name: Run a one-line script
+      run: echo Hello, world!
+    - name: Run a multi-line script
+      run: |
+        echo Add other actions to build,
+        echo test, and deploy your project.
+
+  deploy:
+    name: Deploy package
+    runs-on: ubuntu-latest
+    steps:
+    - name: Tests
+      run: echo Running deploy
