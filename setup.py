@@ -19,5 +19,5 @@ setup(
             'upload_results=hbp_image_tasks.upload_results:main'
         ]
     },
-    version='0.0.1'
+    version='0.0.2'
 )
