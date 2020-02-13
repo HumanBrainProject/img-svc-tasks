@@ -46,15 +46,13 @@ def ingest(path, destination, parameters_file=None, parameters=None):
     '''
     if not isdir(destination):
         makedirs(destination, 0o700)
-    if not (parameters_file or parameters):
-        sys.exit("No ingestion parameters provided")
     if parameters_file:
         try:
             with open(parameters_file) as df:
                 parameters = json.load(df)
         except Exception:
             sys.exit("Couldn't load definition file")
-    else:
+    elif parameters:
         parameters = json.loads(parameters)
     ingest_path(path, destination, parameters)
 

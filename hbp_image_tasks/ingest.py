@@ -32,7 +32,7 @@ def main():
                               help="Filename filter regex for container stacks")
 
     ingest_parser = parser.add_argument_group('Chunk up source data')
-    ingest_parser.add_argument('--parameters', required=True,
+    ingest_parser.add_argument('--parameters',
                                help='The ingestion parameters as JSON string')
     ingest_parser.add_argument('--results-dir', '-r', required=True,
                                help="Directory to store results")
