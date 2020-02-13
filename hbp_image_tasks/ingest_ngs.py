@@ -82,11 +82,9 @@ def ingest_path(path, datadir, parameters):
             input_min=None,
             input_max=None,
             options={})
-        if parameters.get('data_type'):
-            __override_info(
-                join(datadir, "info_fullres.json"),
-                'data_type',
-                parameters.get('data_type'))
+        __override_info(
+            join(datadir, "info_fullres.json"),
+            parameters)
 
         # Generate scales info
         generate_scales_info(
@@ -107,11 +105,14 @@ def ingest_path(path, datadir, parameters):
     logger.info("Scaling complete.")
     logger.info(f"Finished ingestion in {timedelta(seconds=finish-start)}")
 
-def __override_info(jsonfile, key, value):
+def __override_info(jsonfile, parameters):
     '''Needed for the JuBrain example that gets a faulty data type'''
+    if not parameters:
+        return
     with open(jsonfile, 'r') as infile:
         info = json.load(infile)
-    info["data_type"] = "uint8"
+    for parameter in parameters:
+        info[parameter] = parameters[parameter]
     with open(jsonfile, 'w') as outfile:
         json.dump(info, outfile)
 
