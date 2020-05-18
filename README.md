@@ -1,10 +1,14 @@
-# Tasks that can be invoked by the Image Service on the HPC signature_version
+# Tasks that can be invoked by the Image Service on the HPC workers
 
-# Main wrapper script
+# Scripts in the package
 
 ## `ingest`
 
-Combines arguments from the other sub-modules and does all steps  in on script.
+Combines arguments from the other sub-modules and does all steps in one
+Command Line Interface.
+
+It has the advantage of executing a complete process with a single Unicore job
+definition.
 
 Example
 
@@ -21,9 +25,12 @@ SWIFT_SETTINGS='../.os_settings' ingest \
 ```
 
 
-# Modules
-
 ## `fetch_input`
+
+  Fetches the input data for processing.
+  * Can be a single URL which does not require authentication.
+  * In case it's a stack of images, a CSCS Swift container and an option regex
+  filter for objects in this container is also accepted.
 
   Examples:
 
@@ -48,15 +55,21 @@ SWIFT_SETTINGS='../.os_settings' ingest \
 
 ## `ingest_ngs`
 
-Chunk up input data using the neuroglancer_scripts
-
-
+Chunk up the input data using the neuroglancer_scripts
 
 ## `upload_results`
 
 Uploads the results to a SWIFT container.
 
-Expects a JSON file with SWIFT settings, example:
+Expects a JSON file with SWIFT settings.
+
+**IMPORTANT**  When this file is deployed to the HPC
+make sure it is kept in a service accounts's home folder and the file itself
+is only readable by that specific user (`chmod 0600`)!!!
+
+YOU DO NOT WANT TO SHARE THESE CREDENTIALS WITH OTHERS.
+
+Example:
 
 ```
 {
@@ -88,8 +101,3 @@ Manual operation for now.
   * SSH to daint.cscs.ch (no Python on ela)
   * activate virtualenv and install package.
     * `/store/hbp/ich019/img-svc-tasks/bin/pip install /users/ich019sa/hbp-image-tasks-0.0.1.tar.gz`
-
-
-Future improvement for automation: add ssh key for service account's
- (ich019sa) `authorized_keys` on `ela.cscs.ch` to enable SSH connection
-  without password. The create a Gitlab CD pipe which on demand build the sdist, rsyncs to the server, and installs it to the virtual env.
